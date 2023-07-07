@@ -31,7 +31,6 @@ jobs:
       - name: Install mage
         run: |
           go install github.com/magefile/mage@latest
-          go get github.com/magefile/mage/sh
 
       - name: Install dependencies
         run: |

@@ -36,9 +36,7 @@ jobs:
           go-version: ~1.19
 
       - name: Install mage
-        run: |
-          go install github.com/magefile/mage@latest
-          go get github.com/magefile/mage/sh
+        run: go install github.com/magefile/mage@latest
 
       - name: Install dependencies
         run: |
