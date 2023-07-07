@@ -124,7 +124,7 @@ func initConfig() {
 		viper.SetConfigName(".env")
 	}
 
-	viper.SetDefault("SERVER_ADRESS", ":1234")
+	viper.SetDefault("SERVER_ADDRESS", ":1234")
 	viper.SetDefault("SECRET_TOKEN", "CHANGE_ME!")
 	viper.SetDefault("REDIS_ADDRESS", "localhost:6379")
 	viper.SetDefault("REDIS_PASSWORD", "")
