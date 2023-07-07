@@ -45,11 +45,11 @@ func (h Handler) Webhook(c echo.Context) error {
 	switch payload.Action {
 	case "queued":
 		h.Counter.Increment()
-		log.Info().Interface("payload", payload)
+		log.Info().Interface("payload", payload).Msg("")
 		return c.NoContent(http.StatusOK)
 	case "in_progress":
 		h.Counter.Decrement()
-		log.Info().Interface("payload", payload)
+		log.Info().Interface("payload", payload).Msg("")
 		return c.NoContent(http.StatusOK)
 	default:
 		return c.NoContent(http.StatusBadRequest)
