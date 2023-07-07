@@ -6,8 +6,10 @@ Keda has a github runner scaler. The scaler that has been implemented in Keda us
 ## How it works
 
 * Github sends a webhook of type `workflow_job` with the field `action` set to `queued` to the endpoint of keda-actions-webhook (:1234/webhook)
-* keda-actions-webhook adds it to a list that is maintained in Github
+* keda-actions-webhook adds it to a list that is maintained in Redis
 * Keda watches the redis list and is configured to scale a job or deployment
+* Github sends a webhook of type `workflow_job` with the field `action` set to `in_progress` to the endpoint of keda-actions-webhook (:1234/webhook)
+* keda-actions-webhook removes it a list that is maintained in Redis
 * The redis scaler that needs to be used has documentation [here](https://keda.sh/docs/2.11/scalers/redis-lists/) 
 
 Notes: 
