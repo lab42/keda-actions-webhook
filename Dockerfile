@@ -4,7 +4,7 @@ RUN addgroup --gid 1234 -S appgroup && \
 
 FROM scratch as production
 COPY --from=setup /etc/passwd /etc/passwd
-COPY user-svc /user-svc
+COPY keda-actions-webhook /keda-actions-webhook
 USER appuser
 EXPOSE 1234
-ENTRYPOINT ["/user-svc"]
+ENTRYPOINT ["/keda-actions-webhook"]
