@@ -2,9 +2,9 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/google/go-github/v53/github"
 	"github.com/lab42/gha-keda-webhook/counter"
 	"github.com/labstack/echo/v4"
@@ -27,7 +27,6 @@ func (h Handler) Probes(c echo.Context) error {
 }
 
 func (h Handler) Webhook(c echo.Context) error {
-	spew.Config.Indent = "\t"
 
 	// Parse the incoming event
 	var payload map[string]interface{}
@@ -38,22 +37,34 @@ func (h Handler) Webhook(c echo.Context) error {
 	}
 
 	if err := json.Unmarshal(payloadByteArray, &payload); err != nil {
-		log.Infof("Failed to parse event:\n%+v", spew.Sdump(err))
+		log.Infof(err.Error())
 		return c.NoContent(http.StatusBadRequest)
 	}
 
 	// Take action based on the payload.Action
+	p, _ := json.MarshalIndent(payload, "", "\t")
 	switch payload["action"] {
 	case "queued":
 		h.Counter.Increment()
-		log.Infof("Webhook event processed successfully:\n%s", spew.Sdump(payload))
+		log.Infof("Webhook event processed successfully:\n%s", string(p))
 		return c.NoContent(http.StatusOK)
 	case "in_progress":
 		h.Counter.Decrement()
-		log.Infof("Webhook event processed successfully:\n%s", spew.Sdump(payload))
+		log.Infof("Webhook event processed successfully:\n%s", string(p))
 		return c.NoContent(http.StatusOK)
 	default:
-		log.Infof("Webhook event not supported:\n%s", spew.Sdump(payload))
+		log.Infof("Webhook event not supported:\n%s", string(p))
 		return c.NoContent(http.StatusBadRequest)
 	}
+}
+
+func PrettyPrint(data interface{}) {
+	var p []byte
+	//    var err := error
+	p, err := json.MarshalIndent(data, "", "\t")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Printf("%s \n", p)
 }

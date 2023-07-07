@@ -3,7 +3,6 @@ module github.com/lab42/gha-keda-webhook
 go 1.19
 
 require (
-	github.com/davecgh/go-spew v1.1.1
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/google/go-github/v53 v53.2.0
 	github.com/google/uuid v1.3.0
