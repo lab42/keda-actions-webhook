@@ -49,7 +49,6 @@ var rootCmd = &cobra.Command{
 
 		// Create an Echo instance
 		e := echo.New()
-		e.Server.Addr = viper.GetString("SERVER_ADDRESS")
 		e.HideBanner = true
 
 		// GZIP compression
@@ -79,10 +78,10 @@ var rootCmd = &cobra.Command{
 		log.Info("Registered '/webhook' endpoint")
 
 		// Start the web server
-		log.Infof("Starting webhook server on %s", e.Server.Addr)
+		log.Infof("Starting webhook server on %s", viper.GetString("SERVER_ADDRESS"))
 
 		go func() {
-			if err := e.Start(e.Server.Addr); err != nil {
+			if err := e.Start(viper.GetString("SERVER_ADDRESS")); err != nil {
 				log.Fatal(err)
 			}
 		}()
