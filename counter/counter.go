@@ -29,7 +29,7 @@ func (c RedisCounter) TestConnection() bool {
 	// Check the connection
 	_, err := c.rdb.Ping(context.Background()).Result()
 	if err != nil {
-		log.Errorf(fmt.Sprintf("Failed to ping Redis server: %v", err))
+		log.Errorf(fmt.Sprintf("Failed to ping Redis server: %s", err.Error()))
 		return false
 	}
 
@@ -39,12 +39,12 @@ func (c RedisCounter) TestConnection() bool {
 func (c RedisCounter) Increment() bool {
 	newValue, err := c.rdb.Incr(context.Background(), c.counterKey).Result()
 	if err != nil {
-		log.Fatalf("Failed to increment Redis counter: %v", err)
+		log.Fatalf("Failed to increment Redis counter: %s", err.Error())
 		return false
 	}
 
 	log.Infof("Incremented Redis runner counter: %s", c.counterKey)
-	log.Infof("Queue lenght: %s", newValue)
+	log.Infof("Queue lenght: %d", newValue)
 	return true
 }
 
@@ -56,6 +56,6 @@ func (c RedisCounter) Decrement() bool {
 	}
 
 	log.Infof("Decremented Redis runner counter: %s", c.counterKey)
-	log.Infof("Queue lenght: %s", newValue)
+	log.Infof("Queue lenght: %d", newValue)
 	return true
 }
