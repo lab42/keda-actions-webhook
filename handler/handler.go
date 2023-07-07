@@ -42,18 +42,19 @@ func (h Handler) Webhook(c echo.Context) error {
 	}
 
 	// Take action based on the payload.Action
-	p, _ := json.MarshalIndent(payload, "", "\t")
+	p, _ := json.Marshal(payload)
 	switch payload["action"] {
 	case "queued":
 		h.Counter.Increment()
-		log.Infof("Webhook event processed successfully:\n%s", string(p))
+		log.Infof("Webhook event processed successfully", string(p))
+		log.Infof("payload: %s", string(p))
 		return c.NoContent(http.StatusOK)
 	case "in_progress":
 		h.Counter.Decrement()
-		log.Infof("Webhook event processed successfully:\n%s", string(p))
+		log.Infof("Webhook event processed successfully", string(p))
+		log.Infof("payload: %s", string(p))
 		return c.NoContent(http.StatusOK)
 	default:
-		log.Infof("Webhook event not supported:\n%s", string(p))
 		return c.NoContent(http.StatusBadRequest)
 	}
 }
@@ -61,7 +62,7 @@ func (h Handler) Webhook(c echo.Context) error {
 func PrettyPrint(data interface{}) {
 	var p []byte
 	//    var err := error
-	p, err := json.MarshalIndent(data, "", "\t")
+	p, err := json.Marshal(data)
 	if err != nil {
 		fmt.Println(err)
 		return
