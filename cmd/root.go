@@ -58,7 +58,7 @@ var rootCmd = &cobra.Command{
 		}))
 
 		// Add middleware to gather metrics
-		e.Use(echoprometheus.NewMiddleware("gha-webhook-server"))
+		e.Use(echoprometheus.NewMiddleware("keda_actions_webhook"))
 		// Add route to serve gathered metrics
 		e.GET("/metrics", echoprometheus.NewHandler())
 		log.Info("Registered '/metrics' endpoint")
