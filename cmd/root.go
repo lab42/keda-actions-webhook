@@ -17,9 +17,9 @@ package cmd
 
 import (
 	"context"
+	"net/http"
 	"os"
 	"os/signal"
-	"syscall"
 	"time"
 
 	"github.com/google/uuid"
@@ -80,26 +80,24 @@ var rootCmd = &cobra.Command{
 		// Start the web server
 		log.Infof("Starting webhook server on %s", viper.GetString("SERVER_ADDRESS"))
 
+		// Start server
 		go func() {
-			if err := e.Start(viper.GetString("SERVER_ADDRESS")); err != nil {
-				log.Fatal(err)
+			if err := e.Start(viper.GetString("SERVER_ADDRESS")); err != nil && err != http.ErrServerClosed {
+				e.Logger.Fatal("shutting down the server")
 			}
 		}()
 
-		// Graceful shutdown
+		// Wait for interrupt signal to gracefully shutdown the server with a timeout of 10 seconds.
+		// Use a buffered channel to avoid missing signals as recommended for signal.Notify
 		quit := make(chan os.Signal, 1)
-		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+		signal.Notify(quit, os.Interrupt)
 		<-quit
-		log.Info("Gracefully termination requested")
-
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
 		if err := e.Shutdown(ctx); err != nil {
-			log.Fatal(err)
+			e.Logger.Fatal(err)
 		}
-
-		log.Info("Server gracefully terminated")
 	},
 }
 
