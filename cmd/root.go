@@ -17,6 +17,7 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
@@ -28,7 +29,7 @@ import (
 	"github.com/labstack/echo-contrib/echoprometheus"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/labstack/gommon/log"
+	log "github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -60,7 +61,7 @@ var rootCmd = &cobra.Command{
 		e.Use(echoprometheus.NewMiddleware("keda_actions_webhook"))
 		// Add route to serve gathered metrics
 		e.GET("/metrics", echoprometheus.NewHandler())
-		log.Info("Registered '/metrics' endpoint")
+		log.Info().Msg("Registered '/metrics' endpoint")
 
 		// Request ID middleware
 		e.Use(middleware.RequestIDWithConfig(middleware.RequestIDConfig{
@@ -71,19 +72,17 @@ var rootCmd = &cobra.Command{
 
 		// Kubernetes probe endpoint. Can be used for all probes
 		e.GET("/healthz", handler.Probes)
-		log.Info("Registered '/healtz' endpoint")
+		log.Info().Msg("Registered '/healtz' endpoint")
 
 		// Define the webhook endpoint handler
 		e.POST("/webhook", handler.Webhook)
-		log.Info("Registered '/webhook' endpoint")
+		log.Info().Msg("Registered '/webhook' endpoint")
 
 		// Start the web server
-		log.Infof("Starting webhook server on %s", viper.GetString("SERVER_ADDRESS"))
-
-		// Start server
+		log.Info().Msg(fmt.Sprintf("Starting server on %s", viper.GetString("SERVER_ADDRESS")))
 		go func() {
 			if err := e.Start(viper.GetString("SERVER_ADDRESS")); err != nil && err != http.ErrServerClosed {
-				e.Logger.Fatal("shutting down the server")
+				log.Fatal().Msg("shutting down the server")
 			}
 		}()
 
@@ -96,7 +95,7 @@ var rootCmd = &cobra.Command{
 		defer cancel()
 
 		if err := e.Shutdown(ctx); err != nil {
-			e.Logger.Fatal(err)
+			log.Fatal().Msg(err.Error())
 		}
 	},
 }
@@ -134,6 +133,6 @@ func initConfig() {
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
-		log.Infof("Using config file:", viper.ConfigFileUsed())
+		log.Info().Msg(fmt.Sprintf("Using config file: %s", viper.ConfigFileUsed()))
 	}
 }
