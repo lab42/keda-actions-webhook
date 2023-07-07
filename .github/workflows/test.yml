@@ -1,0 +1,63 @@
+name: Test
+
+on:
+  pull_request: {}
+  push:
+    branches:
+      - "main"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Go cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-golang-${{ hashFiles('**/go.sum') }}
+
+      - name: Set up go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ~1.19
+
+      - name: Install mage
+        run: go install github.com/magefile/mage
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get install -y upx
+          mage install
+
+      - name: Install GoReleaser
+        uses: goreleaser/goreleaser-action@v4
+        with:
+          install-only: true
+
+      - name: Set up qemu
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Validate
+        run: mage validate
+
+      - name: Test release
+        uses: goreleaser/goreleaser-action@v4
+        with:
+          version: latest
+          args: release --rm-dist --skip-publish --snapshot
+
+      - name: Create release
+        if: github.ref == 'refs/heads/main'
+        run: gh release create $(svu next)
+        env:
+          GH_TOKEN: ${{ secrets.TOKEN }}
